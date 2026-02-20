@@ -1,4 +1,6 @@
-/* Minimal scaffold for advanced-seo plugin */
+/* Advanced SEO plugin fields with admin components wired for preview and JSON-LD editing */
+import { PreviewPanel, JsonLdEditor } from './admin';
+import React from 'react';
 
 export const OverviewField = (opts: any = {}) => ({
   name: opts.name || 'overview',
@@ -29,14 +31,41 @@ export const MetaDescriptionField = (opts: any = {}) => ({
   ...opts,
 });
 
+// PreviewField renders a small admin component to preview title/description/image
 export const PreviewField = (opts: any = {}) => ({
   name: opts.name || 'preview',
   type: 'row',
-  admin: { components: { Field: () => null } },
+  admin: {
+    components: {
+      Field: (props: any) => {
+        // payload passes the entire sibling data via props?.siblingData or props?.value depending on setup
+        const value = props?.value || props?.siblingData || {};
+        const title = value?.title || (props?.doc && props.doc.title) || '';
+        const description = value?.description || '';
+        const image = (value?.image && (value.image.url || value.image)) || '';
+        return React.createElement(PreviewPanel, { title, description, image });
+      },
+    },
+  },
   ...opts,
 });
 
-export const structuredDataRow = { name: 'structuredDataRow', type: 'row' } as const;
+export const structuredDataRow = {
+  name: 'structuredDataRow',
+  type: 'row',
+  fields: [
+    {
+      name: 'jsonLd',
+      label: 'JSON-LD',
+      type: 'json',
+      admin: {
+        components: {
+          Field: JsonLdEditor,
+        },
+      },
+    },
+  ],
+} as const;
 
 export const seoPlugin = (opts: any = {}) => ({
   name: 'advanced-seo',

@@ -70,7 +70,8 @@ export const structuredDataRow = {
 export const seoPlugin = (opts: any = {}) => ({
   name: 'advanced-seo',
   options: opts,
-  fields: {
+  // Do not expose a `fields` property here (would be non-iterable in admin).
+  fieldFactories: {
     OverviewField,
     MetaTitleField,
     MetaImageField,

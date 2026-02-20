@@ -1,6 +1,14 @@
 import type { CollectionSlug, Config } from 'payload'
 
 import { customEndpointHandler } from './endpoints/customEndpointHandler.js'
+import {
+  OverviewField,
+  MetaTitleField,
+  MetaImageField,
+  MetaDescriptionField,
+  PreviewField,
+  structuredDataRow,
+} from './plugins/advanced-seo/index'
 
 export type AdvancedSeoPluginConfig = {
   /**
@@ -34,9 +42,35 @@ export const advancedSeoPlugin =
         )
 
         if (collection) {
+          // Inject an SEO 'meta' group that mirrors the existing SEO plugin structure
           collection.fields.push({
-            name: 'addedByPlugin',
-            type: 'text',
+            name: 'meta',
+            label: 'SEO',
+            type: 'group',
+            fields: [
+              OverviewField({
+                titlePath: 'meta.title',
+                descriptionPath: 'meta.description',
+                imagePath: 'meta.image',
+              }),
+              MetaTitleField({
+                hasGenerateFn: true,
+              }),
+              MetaImageField({
+                relationTo: 'media',
+              }),
+
+              MetaDescriptionField({}),
+
+              // Structured Data
+              structuredDataRow,
+
+              PreviewField({
+                hasGenerateFn: true,
+                titlePath: 'meta.title',
+                descriptionPath: 'meta.description',
+              }),
+            ],
             admin: {
               position: 'sidebar',
             },

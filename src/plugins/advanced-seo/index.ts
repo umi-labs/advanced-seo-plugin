@@ -81,3 +81,5 @@ export const seoPlugin = (opts: any = {}) => ({
 });
 
 export default seoPlugin;
+
+export const advancedSeoPlugin = seoPlugin;

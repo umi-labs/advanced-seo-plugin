@@ -1,0 +1,9 @@
+{
+  "name": "playwright-web-server",
+  "description": "Start the dev app and run Playwright E2E tests for the dev payload app",
+  "start_command": "pnpm dev",
+  "test_command": "pnpm test:e2e",
+  "health_url": "http://localhost:3000/admin",
+  "reuse_existing_server": true,
+  "notes": "Playwright config (playwright.config.js) expects the dev app to be available at /admin. Use `pnpm dev:db:up` before `pnpm dev` if you need a database."
+}

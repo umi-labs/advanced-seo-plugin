@@ -11,12 +11,15 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await payload.destroy()
+  if (typeof payload?.destroy === 'function') {
+    await payload.destroy()
+  }
 })
 
 describe('advancedSeoPlugin integration', () => {
   test('registers the global-seo global', () => {
-    expect(payload.globals['global-seo']).toBeDefined()
+    const globalSeo = payload.globals.config.find((g) => g.slug === 'global-seo')
+    expect(globalSeo).toBeDefined()
   })
 
   test('injects meta group into the posts collection', () => {
@@ -24,8 +27,11 @@ describe('advancedSeoPlugin integration', () => {
     expect(posts).toBeDefined()
 
     const fields = posts.config.fields
-    const metaGroup = fields.find((f: any) => f.name === 'meta' && f.type === 'group')
-    expect(metaGroup).toBeDefined()
+    // tabbedUI wraps fields in a tabs field; find the SEO tab named 'meta'
+    const tabsField = fields.find((f: any) => f.type === 'tabs') as any
+    expect(tabsField).toBeDefined()
+    const seoTab = tabsField?.tabs?.find((t: any) => t.name === 'meta')
+    expect(seoTab).toBeDefined()
   })
 
   test('can create a post with meta fields', async () => {
@@ -34,14 +40,14 @@ describe('advancedSeoPlugin integration', () => {
       data: {
         title: 'Integration test post',
         meta: {
-          title: 'SEO Title',
-          description: 'SEO description for the post',
+          metaTitle: 'SEO Title',
+          metaDescription: 'SEO description for the post',
         },
       },
     })
 
-    expect((post as any).meta.title).toBe('SEO Title')
-    expect((post as any).meta.description).toBe('SEO description for the post')
+    expect((post as any).meta.metaTitle).toBe('SEO Title')
+    expect((post as any).meta.metaDescription).toBe('SEO description for the post')
   })
 
   test('can save and retrieve meta.url (canonical URL)', async () => {
@@ -50,12 +56,12 @@ describe('advancedSeoPlugin integration', () => {
       data: {
         title: 'Canonical URL test',
         meta: {
-          url: 'https://example.com/canonical',
+          canonicalUrl: 'https://example.com/canonical',
         },
       },
     })
 
-    expect((post as any).meta.url).toBe('https://example.com/canonical')
+    expect((post as any).meta.canonicalUrl).toBe('https://example.com/canonical')
   })
 
   test('can save and retrieve hreflang alternates', async () => {

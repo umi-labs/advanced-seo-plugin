@@ -1,0 +1,26 @@
+{
+  "git": {
+    "requireCleanWorkingDir": true,
+    "tagName": "v${version}",
+    "commitMessage": "chore(release): v${version}",
+    "commit": false,
+    "tag": false,
+    "push": false
+  },
+  "npm": {
+    "publish": true
+  },
+  "github": {
+    "release": true
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  },
+  "hooks": {
+    "before:bump": ["pnpm build"],
+    "after:release": ["echo Release ${version} finished"]
+  }
+}

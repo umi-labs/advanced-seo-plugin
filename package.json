@@ -1,7 +1,7 @@
 {
-  "name": "advanced-seo-plugin",
-  "version": "1.0.0",
-  "description": "A blank template to get started with Payload 3.0",
+  "name": "@foundrykit/advanced-seo-plugin",
+  "version": "0.2.0",
+  "description": "A plugin for Payload CMS that provides advanced SEO features, including automatic generation of meta tags, sitemaps, and structured data based on your content.",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -50,7 +50,12 @@
     "lint:fix": "eslint ./src --fix",
     "test": "pnpm test:int && pnpm test:e2e",
     "test:e2e": "playwright test",
-    "test:int": "vitest"
+    "test:int": "vitest",
+    "release": "release-it",
+    "release:ci": "release-it --ci",
+    "release:patch": "release-it patch",
+    "release:minor": "release-it minor",
+    "release:major": "release-it major"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -80,6 +85,7 @@
     "qs-esm": "7.0.2",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "release-it": "^19.2.4",
     "rimraf": "3.0.2",
     "sharp": "0.34.2",
     "sort-package-json": "^2.10.0",
@@ -118,7 +124,8 @@
       }
     },
     "main": "./dist/index.js",
-    "types": "./dist/index.d.ts"
+    "types": "./dist/index.d.ts",
+    "access": "public"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -128,5 +135,7 @@
     ]
   },
   "registry": "https://registry.npmjs.org/",
-  "dependencies": {}
+  "dependencies": {
+    "@release-it/conventional-changelog": "^10.0.5"
+  }
 }

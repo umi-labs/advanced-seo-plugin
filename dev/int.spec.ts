@@ -1,52 +1,108 @@
 import type { Payload } from 'payload'
 
 import config from '@payload-config'
-import { createPayloadRequest, getPayload } from 'payload'
+import { getPayload } from 'payload'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { customEndpointHandler } from '../src/endpoints/customEndpointHandler.js'
-
 let payload: Payload
-
-afterAll(async () => {
-  await payload.destroy()
-})
 
 beforeAll(async () => {
   payload = await getPayload({ config })
 })
 
-describe('Plugin integration tests', () => {
-  test('should query custom endpoint added by plugin', async () => {
-    const request = new Request('http://localhost:3000/api/my-plugin-endpoint', {
-      method: 'GET',
-    })
+afterAll(async () => {
+  await payload.destroy()
+})
 
-    const payloadRequest = await createPayloadRequest({ config, request })
-    const response = await customEndpointHandler(payloadRequest)
-    expect(response.status).toBe(200)
-
-    const data = await response.json()
-    expect(data).toMatchObject({
-      message: 'Hello from custom endpoint',
-    })
+describe('advancedSeoPlugin integration', () => {
+  test('registers the global-seo global', () => {
+    expect(payload.globals['global-seo']).toBeDefined()
   })
 
-  test('can create post with custom text field added by plugin', async () => {
+  test('injects meta group into the posts collection', () => {
+    const posts = payload.collections['posts']
+    expect(posts).toBeDefined()
+
+    const fields = posts.config.fields
+    const metaGroup = fields.find((f: any) => f.name === 'meta' && f.type === 'group')
+    expect(metaGroup).toBeDefined()
+  })
+
+  test('can create a post with meta fields', async () => {
     const post = await payload.create({
       collection: 'posts',
       data: {
-        addedByPlugin: 'added by plugin',
+        title: 'Integration test post',
+        meta: {
+          title: 'SEO Title',
+          description: 'SEO description for the post',
+        },
       },
     })
-    expect(post.addedByPlugin).toBe('added by plugin')
+
+    expect((post as any).meta.title).toBe('SEO Title')
+    expect((post as any).meta.description).toBe('SEO description for the post')
   })
 
-  test('plugin creates and seeds plugin-collection', async () => {
-    expect(payload.collections['plugin-collection']).toBeDefined()
+  test('can save and retrieve meta.url (canonical URL)', async () => {
+    const post = await payload.create({
+      collection: 'posts',
+      data: {
+        title: 'Canonical URL test',
+        meta: {
+          url: 'https://example.com/canonical',
+        },
+      },
+    })
 
-    const { docs } = await payload.find({ collection: 'plugin-collection' })
+    expect((post as any).meta.url).toBe('https://example.com/canonical')
+  })
 
-    expect(docs).toHaveLength(1)
+  test('can save and retrieve hreflang alternates', async () => {
+    const post = await payload.create({
+      collection: 'posts',
+      data: {
+        title: 'Alternates test',
+        meta: {
+          alternates: [
+            { locale: 'en', url: 'https://example.com/en/page' },
+            { locale: 'fr', url: 'https://example.com/fr/page' },
+          ],
+        },
+      },
+    })
+
+    expect((post as any).meta.alternates).toHaveLength(2)
+    expect((post as any).meta.alternates[0]).toMatchObject({ locale: 'en', url: 'https://example.com/en/page' })
+    expect((post as any).meta.alternates[1]).toMatchObject({ locale: 'fr', url: 'https://example.com/fr/page' })
+  })
+
+  test('can save and retrieve JSON-LD structured data', async () => {
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: 'Test article',
+    }
+
+    const post = await payload.create({
+      collection: 'posts',
+      data: {
+        title: 'JSON-LD test',
+        meta: {
+          jsonLd,
+        },
+      },
+    })
+
+    expect((post as any).meta.jsonLd).toMatchObject(jsonLd)
+  })
+
+  test('does not inject meta group into collections not in the plugin config', () => {
+    const media = payload.collections['media']
+    expect(media).toBeDefined()
+
+    const fields = media.config.fields
+    const metaGroup = fields.find((f: any) => f.name === 'meta' && f.type === 'group')
+    expect(metaGroup).toBeUndefined()
   })
 })

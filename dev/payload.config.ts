@@ -1,9 +1,16 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import {
+  advancedSeoPlugin,
+  MetaDescriptionField,
+  MetaImageField,
+  MetaJsonLdField,
+  MetaPreviewField,
+  MetaTitleField,
+} from 'advanced-seo-plugin'
 import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import path from 'path'
 import { buildConfig } from 'payload'
-import { advancedSeoPlugin } from 'advanced-seo-plugin'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
@@ -38,7 +45,56 @@ const buildConfigWithMemoryDB = async () => {
     collections: [
       {
         slug: 'posts',
-        fields: [],
+        fields: [
+          {
+            name: 'title',
+            type: 'text',
+          },
+        ],
+      },
+      {
+        slug: 'properties',
+        fields: [
+          {
+            name: 'title',
+            type: 'text',
+          },
+        ],
+      },
+      {
+        slug: 'pages',
+        fields: [
+          {
+            name: 'title',
+            type: 'text',
+          },
+          {
+            type: 'tabs',
+            tabs: [
+              {
+                fields: [
+                  {
+                    name: 'content',
+                    type: 'richText',
+                  },
+                ],
+                label: 'Hero',
+              },
+              {
+                fields: [
+                  MetaTitleField({
+                    hasGenerateFn: true,
+                  }),
+                  MetaDescriptionField({}),
+                  MetaImageField({}),
+                  MetaPreviewField({}),
+                  MetaJsonLdField({}),
+                ],
+                label: 'SEO',
+              },
+            ],
+          },
+        ],
       },
       {
         slug: 'media',
@@ -62,6 +118,7 @@ const buildConfigWithMemoryDB = async () => {
         collections: {
           posts: true,
         },
+        tabbedUI: true,
       }),
     ],
     secret: process.env.PAYLOAD_SECRET || 'test-secret_key',

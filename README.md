@@ -1,218 +1,338 @@
-# Payload Plugin Template
+# advanced-seo-plugin
 
-A template repo to create a [Payload CMS](https://payloadcms.com) plugin.
+A comprehensive SEO plugin for [Payload CMS](https://payloadcms.com) v3 that injects a `meta` sidebar group into configured collections, provides a site-wide `global-seo` global for defaults, and exports composable utilities for title/URL generation, hreflang alternates, OG image generation, and JSON-LD structured data.
 
-Payload is built with a robust infrastructure intended to support Plugins with ease. This provides a simple, modular, and reusable way for developers to extend the core capabilities of Payload.
+## Features
 
-To build your own Payload plugin, all you need is:
+- **Meta sidebar group** — title, canonical URL, image, description, noindex/nofollow, hreflang alternates, and JSON-LD per document
+- **Global SEO defaults** — site name, default title/description/image, Twitter handle, site-wide robots directive
+- **Auto-generate meta title & URL** on save (skips if editor has already set a value)
+- **Auto-generate hreflang alternates** on read (respects a global toggle; skips if manual alternates exist)
+- **OG image generation** — generate and save an image to your media collection on publish
+- **JSON-LD template builders** — `webPageJsonLd`, `articleJsonLd`, `productJsonLd`, `organizationJsonLd`, `breadcrumbJsonLd`, and `buildJsonLd`
+- **`resolveMeta`** helper — resolve final title/description/image/noindex/nofollow/alternates/jsonLd from a document and global defaults
+- **`toNextMetadata`** helper — build a complete Next.js `Metadata` object in one call
+- **Character-count overview** and **SERP preview** UI components in the admin sidebar
+- Fully typed — all config options and return types are exported
 
-- An understanding of the basic Payload concepts
-- And some JavaScript/Typescript experience
+## Installation
 
-## Background
+```bash
+pnpm add advanced-seo-plugin
+# or
+npm install advanced-seo-plugin
+```
 
-Here is a short recap on how to integrate plugins with Payload, to learn more visit the [plugin overview page](https://payloadcms.com/docs/plugins/overview).
-
-### How to install a plugin
-
-To install any plugin, simply add it to your payload.config() in the Plugin array.
+## Quick start
 
 ```ts
-import myPlugin from 'my-plugin'
+// payload.config.ts
+import { advancedSeoPlugin } from 'advanced-seo-plugin'
+import { buildConfig } from 'payload'
 
-export const config = buildConfig({
+export default buildConfig({
   plugins: [
-    // You can pass options to the plugin
-    myPlugin({
-      enabled: true,
+    advancedSeoPlugin({
+      collections: {
+        posts: true,
+        pages: true,
+      },
+      generateTitle: ({ data }) => `${data.title} | My Site`,
+      generateURL: ({ data }) => `https://example.com/posts/${data.slug}`,
     }),
   ],
 })
 ```
 
-### Initialization
+This adds a **SEO** sidebar group to the `posts` and `pages` collections with fields for title, canonical URL, image, description, hreflang alternates, and JSON-LD.
 
-The initialization process goes in the following order:
+## Plugin options
 
-1. Incoming config is validated
-2. **Plugins execute**
-3. Default options are integrated
-4. Sanitization cleans and validates data
-5. Final config gets initialized
+| Option | Type | Description |
+|---|---|---|
+| `collections` | `Partial<Record<CollectionSlug, true>>` | Collections to inject the meta group into |
+| `disabled` | `boolean` | Disable the plugin without removing DB schema (useful for migrations) |
+| `generateTitle` | `(args) => string \| null \| Promise<...>` | Auto-populate `meta.title` on save when the field is empty |
+| `generateURL` | `(args) => string \| null \| Promise<...>` | Auto-populate `meta.url` on save when the field is empty |
+| `generateAlternateURL` | `(args) => string \| null \| Promise<...>` | Build a URL for each locale when auto-generating hreflang alternates |
+| `generateOgImage` | `(args) => Buffer \| null \| Promise<...>` | Generate an OG image (PNG/JPEG) when a document has no `meta.image` |
+| `locales` | `string[]` | BCP 47 locale codes used for auto-alternates (e.g. `['en', 'fr', 'de']`) |
+| `mediaCollection` | `string[]` | Media collection slug(s) for the image picker (default: `['media']`) |
 
-## Building the Plugin
+### `generateTitle`
 
-When you build a plugin, you are purely building a feature for your project and then abstracting it outside of the project.
-
-### Template Files
-
-In the Payload [plugin template](https://github.com/payloadcms/payload/tree/main/templates/plugin), you will see a common file structure that is used across all plugins:
-
-1. root folder
-2. /src folder
-3. /dev folder
-
-#### Root
-
-In the root folder, you will see various files that relate to the configuration of the plugin. We set up our environment in a similar manner in Payload core and across other projects, so hopefully these will look familiar:
-
-- **README**.md\* - This contains instructions on how to use the template. When you are ready, update this to contain instructions on how to use your Plugin.
-- **package**.json\* - Contains necessary scripts and dependencies. Overwrite the metadata in this file to describe your Plugin.
-- .**eslint**.config.js - Eslint configuration for reporting on problematic patterns.
-- .**gitignore** - List specific untracked files to omit from Git.
-- .**prettierrc**.json - Configuration for Prettier code formatting.
-- **tsconfig**.json - Configures the compiler options for TypeScript
-- .**swcrc** - Configuration for SWC, a fast compiler that transpiles and bundles TypeScript.
-- **vitest**.config.js - Config file for Vitest, defining how tests are run and how modules are resolved
-
-**IMPORTANT\***: You will need to modify these files.
-
-#### Dev
-
-In the dev folder, you’ll find a basic payload project, created with `npx create-payload-app` and the blank template.
-
-**IMPORTANT**: Make a copy of the `.env.example` file and rename it to `.env`. Update the `DATABASE_URL` to match the database you are using and your plugin name. Update `PAYLOAD_SECRET` to a unique string.
-**You will not be able to run `pnpm/yarn dev` until you have created this `.env` file.**
-
-`myPlugin` has already been added to the `payload.config()` file in this project.
+Called on `beforeChange` for every configured collection. Only runs if `meta.title` is currently empty — the editor's value always wins.
 
 ```ts
-plugins: [
-  myPlugin({
-    collections: {
-      posts: true,
-    },
-  }),
-]
-```
-
-Later when you rename the plugin or add additional options, **make sure to update it here**.
-
-You may wish to add collections or expand the test project depending on the purpose of your plugin. Just make sure to keep this dev environment as simplified as possible - users should be able to install your plugin without additional configuration required.
-
-When you’re ready to start development, initiate the project with `pnpm/npm/yarn dev` and pull up [http://localhost:3000](http://localhost:3000) in your browser.
-
-#### Src
-
-Now that we have our environment setup and we have a dev project ready to - it’s time to build the plugin!
-
-**index.ts**
-
-The essence of a Payload plugin is simply to extend the payload config - and that is exactly what we are doing in this file.
-
-```ts
-export const myPlugin =
-  (pluginOptions: MyPluginConfig) =>
-  (config: Config): Config => {
-    // do cool stuff with the config here
-
-    return config
-  }
-```
-
-First, we receive the existing payload config along with any plugin options.
-
-From here, you can extend the config as you wish.
-
-Finally, you return the config and that is it!
-
-##### Spread Syntax
-
-Spread syntax (or the spread operator) is a feature in JavaScript that uses the dot notation **(...)** to spread elements from arrays, strings, or objects into various contexts.
-
-We are going to use spread syntax to allow us to add data to existing arrays without losing the existing data. It is crucial to spread the existing data correctly – else this can cause adverse behavior and conflicts with Payload config and other plugins.
-
-Let’s say you want to build a plugin that adds a new collection:
-
-```ts
-config.collections = [
-  ...(config.collections || []),
-  // Add additional collections here
-]
-```
-
-First we spread the `config.collections` to ensure that we don’t lose the existing collections, then you can add any additional collections just as you would in a regular payload config.
-
-This same logic is applied to other properties like admin, hooks, globals:
-
-```ts
-config.globals = [
-  ...(config.globals || []),
-  // Add additional globals here
-]
-
-config.hooks = {
-  ...(incomingConfig.hooks || {}),
-  // Add additional hooks here
-}
-```
-
-Some properties will be slightly different to extend, for instance the onInit property:
-
-```ts
-import { onInitExtension } from './onInitExtension' // example file
-
-config.onInit = async (payload) => {
-  if (incomingConfig.onInit) await incomingConfig.onInit(payload)
-  // Add additional onInit code by defining an onInitExtension function
-  onInitExtension(pluginOptions, payload)
-}
-```
-
-If you wish to add to the onInit, you must include the **async/await**. We don’t use spread syntax in this case, instead you must await the existing `onInit` before running additional functionality.
-
-In the template, we have stubbed out some addition `onInit` actions that seeds in a document to the `plugin-collection`, you can use this as a base point to add more actions - and if not needed, feel free to delete it.
-
-##### Types.ts
-
-If your plugin has options, you should define and provide types for these options.
-
-```ts
-export type MyPluginConfig = {
-  /**
-   * List of collections to add a custom field
-   */
-  collections?: Partial<Record<CollectionSlug, true>>
-  /**
-   * Disable the plugin
-   */
-  disabled?: boolean
-}
-```
-
-If possible, include JSDoc comments to describe the options and their types. This allows a developer to see details about the options in their editor.
-
-##### Testing
-
-Having a test suite for your plugin is essential to ensure quality and stability. **Vitest** is a fast, modern testing framework that works seamlessly with Vite and supports TypeScript out of the box.
-
-Vitest organizes tests into test suites and cases, similar to other testing frameworks. We recommend creating individual tests based on the expected behavior of your plugin from start to finish.
-
-Writing tests with Vitest is very straightforward, and you can learn more about how it works in the [Vitest documentation.](https://vitest.dev/)
-
-For this template, we stubbed out `int.spec.ts` in the `dev` folder where you can write your tests.
-
-```ts
-describe('Plugin tests', () => {
-  // Create tests to ensure expected behavior from the plugin
-  it('some condition that must be met', () => {
-   // Write your test logic here
-   expect(...)
-  })
+advancedSeoPlugin({
+  collections: { posts: true },
+  generateTitle: ({ collectionSlug, data, req }) =>
+    `${data.title} | My Site`,
 })
 ```
 
-## Best practices
+### `generateURL`
 
-With this tutorial and the plugin template, you should have everything you need to start building your own plugin.
-In addition to the setup, here are other best practices aim we follow:
+Called on `beforeChange` alongside `generateTitle` (in parallel). Only runs if `meta.url` is currently empty.
 
-- **Providing an enable / disable option:** For a better user experience, provide a way to disable the plugin without uninstalling it. This is especially important if your plugin adds additional webpack aliases, this will allow you to still let the webpack run to prevent errors.
-- **Include tests in your GitHub CI workflow**: If you’ve configured tests for your package, integrate them into your workflow to run the tests each time you commit to the plugin repository. Learn more about [how to configure tests into your GitHub CI workflow.](https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs)
-- **Publish your finished plugin to NPM**: The best way to share and allow others to use your plugin once it is complete is to publish an NPM package. This process is straightforward and well documented, find out more [creating and publishing a NPM package here.](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/).
-- **Add payload-plugin topic tag**: Apply the tag **payload-plugin **to your GitHub repository. This will boost the visibility of your plugin and ensure it gets listed with [existing payload plugins](https://github.com/topics/payload-plugin).
-- **Use [Semantic Versioning](https://semver.org/) (SemVar)** - With the SemVar system you release version numbers that reflect the nature of changes (major, minor, patch). Ensure all major versions reference their Payload compatibility.
+```ts
+advancedSeoPlugin({
+  collections: { posts: true },
+  generateURL: ({ data }) =>
+    `https://example.com/blog/${data.slug}`,
+})
+```
 
-# Questions
+### `generateAlternateURL`
 
-Please contact [Payload](mailto:dev@payloadcms.com) with any questions about using this plugin template.
+Called on `afterRead` once per locale per document. The hook only runs when:
+
+1. The `global-seo` global has `autoGenerateAlternates` enabled
+2. The document has no manually entered alternates
+3. `generateAlternateURL` is configured and `locales` is non-empty
+
+Return `null` to skip a locale.
+
+```ts
+advancedSeoPlugin({
+  collections: { posts: true },
+  locales: ['en', 'fr', 'de'],
+  generateAlternateURL: ({ collectionSlug, doc, locale }) =>
+    `https://example.com/${locale}/blog/${doc.slug}`,
+})
+```
+
+### `generateOgImage`
+
+Called on `afterChange` when the document has no `meta.image` set and the `global-seo` global has `enableOgGenerator` enabled. Return a `Buffer` (PNG or JPEG) — the plugin saves it to your media collection and writes the media ID back to `meta.image`.
+
+```ts
+advancedSeoPlugin({
+  collections: { posts: true },
+  generateOgImage: async ({ collectionSlug, doc }) => {
+    // e.g. use @vercel/og or puppeteer to render a Buffer
+    return renderOgImageBuffer(doc)
+  },
+})
+```
+
+## `toNextMetadata`
+
+Builds a complete Next.js-compatible `Metadata` object from a document and optional global defaults. This is the recommended way to wire SEO into a Next.js App Router project.
+
+```ts
+import { toNextMetadata } from 'advanced-seo-plugin'
+// or from the dedicated subpath:
+import { toNextMetadata } from 'advanced-seo-plugin/next'
+
+// app/blog/[slug]/page.tsx
+export async function generateMetadata({ params }) {
+  const doc = await payload.findByID({ collection: 'posts', id: params.id })
+  const globals = await payload.findGlobal({ slug: 'global-seo' })
+  return toNextMetadata(doc, globals)
+}
+```
+
+The return type is structurally compatible with Next.js `Metadata` — no type cast needed.
+
+**Options** (third argument):
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `openGraphType` | `'website' \| 'article' \| 'product'` | `'website'` | Sets `og:type` |
+| `baseUrl` | `string` | — | Available for future use |
+
+**What gets populated:**
+
+| Key | Source |
+|---|---|
+| `title` | Resolved meta title (omitted when empty) |
+| `description` | Resolved meta description (omitted when empty) |
+| `robots` | Per-doc `noindex`/`nofollow` flags → global `robots` directive → omitted |
+| `alternates.canonical` | `meta.url` |
+| `alternates.languages` | `meta.alternates` array → `{ [locale]: url }` |
+| `openGraph` | title, description, images, type |
+| `twitter` | card (`summary_large_image`), site (from `twitterHandle`), title, description, images |
+
+**Robots precedence:** per-document `noindex`/`nofollow` checkboxes take priority over the global `robots` directive. The global directive is only used when neither checkbox is set — useful for blocking an entire staging environment with a single toggle.
+
+## `resolveMeta`
+
+Lower-level helper. Returns the raw resolved values so you can build your own head tags.
+
+```ts
+import { resolveMeta } from 'advanced-seo-plugin'
+
+const { title, description, image, noindex, nofollow, url, alternates, jsonLd } = resolveMeta(
+  doc,
+  { globals: globalSeoDoc },
+)
+```
+
+Resolution order:
+
+| Field | Priority |
+|---|---|
+| `title` | `meta.title` → `globals.defaultTitle` → `doc.title` → `''` |
+| `description` | `meta.description` → `globals.defaultDescription` → `doc.description` → `''` |
+| `image` | `meta.image` → `globals.defaultImage` → `null` |
+| `url` | `meta.url` → `''` |
+| `noindex` | `meta.noindex` → `false` |
+| `nofollow` | `meta.nofollow` → `false` |
+| `alternates` | `meta.alternates` (auto-generated alternates are merged by the `afterRead` hook before this is called) |
+| `jsonLd` | `meta.jsonLd` → `null` |
+
+The `image` field always resolves to a URL string (or `null`), whether the source value is an uploaded media object or a plain string.
+
+## JSON-LD builders
+
+All builders are tree-shakeable and exported from the main entry point.
+
+```ts
+import {
+  articleJsonLd,
+  breadcrumbJsonLd,
+  buildJsonLd,
+  organizationJsonLd,
+  productJsonLd,
+  webPageJsonLd,
+} from 'advanced-seo-plugin'
+```
+
+### `webPageJsonLd(args?)`
+
+```ts
+const ld = webPageJsonLd({
+  name: 'Home',
+  url: 'https://example.com',
+  description: 'Welcome to my site',
+  datePublished: '2024-01-01',
+})
+```
+
+### `articleJsonLd(args?)`
+
+```ts
+const ld = articleJsonLd({
+  headline: 'My article',
+  url: 'https://example.com/blog/my-article',
+  author: 'Jane Smith',              // or { name: 'Jane Smith', url: '...' }
+  publisher: {
+    name: 'Acme Corp',
+    logo: 'https://example.com/logo.png',
+  },
+  datePublished: '2024-01-01',
+})
+```
+
+### `productJsonLd(args?)`
+
+```ts
+const ld = productJsonLd({
+  name: 'My Product',
+  brand: 'Acme',
+  offers: {
+    price: 9.99,
+    currency: 'USD',
+    availability: 'InStock',
+    url: 'https://example.com/products/my-product',
+  },
+})
+```
+
+### `organizationJsonLd(args?)`
+
+```ts
+const ld = organizationJsonLd({
+  name: 'Acme Corp',
+  url: 'https://example.com',
+  logo: 'https://example.com/logo.png',
+  sameAs: ['https://twitter.com/acme', 'https://linkedin.com/acme'],
+})
+```
+
+### `breadcrumbJsonLd(items)`
+
+```ts
+const ld = breadcrumbJsonLd([
+  { id: 'https://example.com', name: 'Home' },
+  { id: 'https://example.com/blog', name: 'Blog' },
+  { id: 'https://example.com/blog/my-article', name: 'My Article' },
+])
+```
+
+### `buildJsonLd(base, overrides?)`
+
+Merge a base template with doc-specific values. `@context` and `@type` are always preserved from the base.
+
+```ts
+const base = articleJsonLd({ headline: 'Default headline' })
+const merged = buildJsonLd(base, {
+  headline: doc.meta.title,
+  url: doc.meta.url,
+  datePublished: doc.publishedAt,
+})
+```
+
+## Field factories
+
+All fields used in the meta group are individually exported so you can compose your own layouts.
+
+```ts
+import {
+  AlternatesField,
+  MetaDescriptionField,
+  MetaImageField,
+  MetaNofollowField,
+  MetaNoindexField,
+  MetaTitleField,
+  MetaUrlField,
+  OverviewField,
+  PreviewField,
+  structuredDataRow,
+} from 'advanced-seo-plugin'
+```
+
+| Export | Type | Description |
+|---|---|---|
+| `OverviewField(args)` | UI field | Character-count overview (title ≤ 60, description ≤ 160) |
+| `MetaTitleField(args)` | Text field | `meta.title` |
+| `MetaUrlField(args)` | Text field | `meta.url` (canonical URL) |
+| `MetaImageField(args)` | Upload field | `meta.image` |
+| `MetaDescriptionField(args)` | Textarea field | `meta.description` |
+| `MetaNoindexField(args)` | Checkbox field | `meta.noindex` — block search engine indexing |
+| `MetaNofollowField(args)` | Checkbox field | `meta.nofollow` — block link following |
+| `AlternatesField(args)` | Array field | `meta.alternates` — locale + URL pairs |
+| `structuredDataRow` | Row field | `meta.jsonLd` with inline JSON editor |
+| `PreviewField(args)` | UI field | Google SERP-style preview |
+
+## Global SEO
+
+The plugin automatically registers a `global-seo` global in your Payload config. Find it in the admin panel under **Globals → Global SEO**. It provides:
+
+- **Site name** and **Twitter handle**
+- **Site-wide robots directive** — set e.g. `noindex, nofollow` to block all pages (great for staging); overridden per-document by the noindex/nofollow checkboxes
+- **Default title**, **default description**, **default image** — used as fallbacks in `resolveMeta`
+- **Auto-generate alternates** toggle — enables the `afterRead` alternate generation hook
+- **Enable OG image generator** toggle — enables the `afterChange` OG image hook
+- **JSON-LD templates** — named JSON-LD presets you can reference in your own code
+
+## Development
+
+```bash
+# Start the dev MongoDB
+pnpm dev:db:up
+
+# Start the Next.js dev server (the dev/ directory is a full Payload app)
+pnpm dev
+
+# Run unit tests
+pnpm test:int
+
+# Build the plugin
+pnpm build
+```
+
+## License
+
+MIT

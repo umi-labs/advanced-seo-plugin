@@ -1,1 +1,6 @@
-export { BeforeDashboardClient } from '../components/BeforeDashboardClient.js'
+export { JsonLdEditorComponent } from '../components/JsonLdEditor.js'
+export { JsonLdTemplateRowLabel } from '../components/JsonLdTemplateRowLabel.js'
+export { MetaDescriptionComponent } from '../components/MetaDescriptionComponent.js'
+export { MetaTitleComponent } from '../components/MetaTitleComponent.js'
+export { OverviewComponent } from '../components/OverviewComponent.js'
+export { PreviewComponent } from '../components/PreviewComponent.js'

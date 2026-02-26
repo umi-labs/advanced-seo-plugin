@@ -101,4 +101,90 @@ Next steps
 
 ---
 
-File updated in .github with the requested mediaCollection config example and note that no JSON-LD templates are pre-seeded.
+## Payload v3 Plugin Building Patterns (from official docs)
+
+### Plugin function signature
+Plugins must follow the higher-order function pattern — a function that takes plugin options and returns a function that takes the incoming config and returns a modified config:
+
+```ts
+export const myPlugin =
+  (pluginOptions: PluginOptions) =>
+  (incomingConfig: Config): Config => {
+    const config = { ...incomingConfig }
+    // modify config
+    return config
+  }
+```
+
+### Config modification — always spread, never mutate
+Use spread to preserve existing arrays. Never push/mutate the incoming config directly:
+
+```ts
+config.collections = [...(config.collections || []), newCollection]
+config.globals = [...(config.globals || []), newGlobal]
+```
+
+### Extending onInit and other functions
+Functions can't be spread. Capture the incoming function and call it first:
+
+```ts
+const incomingOnInit = config.onInit
+config.onInit = async (payload) => {
+  if (incomingOnInit) await incomingOnInit(payload)
+  // plugin logic here
+}
+```
+
+### Admin components — string path references (v3 import map)
+In Payload v3, admin components must be referenced as strings in the format `'package-name/export-path#ExportName'` — NOT inline React components or direct imports in field config objects. Payload builds an import map at startup to bundle only the components that are actually used.
+
+```ts
+// CORRECT — string reference resolved via import map
+admin: {
+  components: {
+    Field: 'advanced-seo-plugin/client#MyComponent',
+  },
+}
+
+// CORRECT — object form with clientProps
+admin: {
+  components: {
+    Field: {
+      path: 'advanced-seo-plugin/client#MyComponent',
+      clientProps: { foo: 'bar' },
+    },
+  },
+}
+
+// WRONG — inline function/import in field config
+admin: {
+  components: {
+    Field: MyComponent,  // will not work in v3
+  },
+}
+```
+
+The component must be exported from the path listed in the package `exports` map (e.g. `./client` → `src/exports/client.ts`). Client components must have `'use client'` at the top.
+
+### ui field type vs row field type
+- `type: 'ui'` — for admin-only display components that store no data. No `fields` array needed.
+- `type: 'row'` — a layout wrapper that MUST have a `fields` array with at least one field. Payload iterates `fields` during config sanitization; a missing or non-iterable `fields` will throw `TypeError: fields is not iterable`.
+
+### disabled pattern
+Always support a `disabled` option that returns the config as-is (after adding schema-affecting items like collections/globals) so the database schema stays consistent for migrations:
+
+```ts
+if (pluginOptions.disabled) {
+  return config
+}
+```
+
+### Development environment
+The `/dev` folder is a full Next.js + Payload app that imports the plugin from the package root (via `exports` in package.json). The `next.config.mjs` webpack `extensionAlias` maps `.js` imports to `.ts` source files so the plugin runs from source without building.
+
+### Component props from field config
+Use `clientProps` on the component object to pass field-level configuration (like paths) down to the React component at build time. Dynamic runtime data should be read via Payload's `useField` or `useFormFields` hooks inside the component.
+
+---
+
+File updated with Payload v3 plugin building patterns from official documentation.

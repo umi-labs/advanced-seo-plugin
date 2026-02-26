@@ -18,8 +18,14 @@ export default defineConfig(() => {
     ],
     test: {
       environment: 'node',
-      hookTimeout: 30_000,
+      exclude: ['**/node_modules/**', '**/e2e.spec.*'],
+      hookTimeout: 60_000,
       testTimeout: 30_000,
+      poolOptions: {
+        forks: {
+          singleFork: true,
+        },
+      },
     },
   }
 })

@@ -11,7 +11,9 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await payload.destroy()
+  if (typeof payload?.destroy === 'function') {
+    await payload.destroy()
+  }
 })
 
 describe('advancedSeoPlugin integration', () => {

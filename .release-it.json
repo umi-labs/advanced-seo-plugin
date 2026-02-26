@@ -3,7 +3,9 @@
     "requireCleanWorkingDir": true,
     "tagName": "v${version}",
     "commitMessage": "chore(release): v${version}",
-    "push": true
+    "commit": false,
+    "tag": false,
+    "push": false
   },
   "npm": {
     "publish": true

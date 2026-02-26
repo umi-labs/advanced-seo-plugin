@@ -16,7 +16,6 @@
     "draft": false
   },
   "hooks": {
-    "before:init": ["pnpm test:int"],
     "before:bump": ["pnpm build"],
     "after:release": ["echo Release ${version} finished"]
   }

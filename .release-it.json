@@ -1,0 +1,23 @@
+{
+  "git": {
+    "requireCleanWorkingDir": true,
+    "tagName": "v${version}",
+    "commitMessage": "chore(release): v${version}",
+    "push": true
+  },
+  "npm": {
+    "publish": true,
+    "verifyAccess": false
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}",
+    "assets": ["dist/**/*"],
+    "draft": false
+  },
+  "hooks": {
+    "before:init": ["pnpm test:int"],
+    "before:bump": ["pnpm build"],
+    "after:release": ["echo Release ${version} finished"]
+  }
+}

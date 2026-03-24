@@ -23,9 +23,9 @@ This README documents the plugin features and shows how to use them in common sc
 ## Installation
 
 ```bash
-pnpm add advanced-seo-plugin
+pnpm add @foundrykit/advanced-seo-plugin
 # or
-npm install advanced-seo-plugin
+npm install @foundrykit/advanced-seo-plugin
 ```
 
 ## Quick start (Payload config)
@@ -35,7 +35,7 @@ Add the plugin to your `payload.config.ts` and enable it for the collections you
 ```ts
 // payload.config.ts
 import { buildConfig } from 'payload'
-import { advancedSeoPlugin } from 'advanced-seo-plugin'
+import { advancedSeoPlugin } from '@foundrykit/advanced-seo-plugin'
 
 export default buildConfig({
   plugins: [
@@ -148,7 +148,7 @@ Use `payload.findGlobal({ slug: 'global-seo' })` to read global values in server
 Example:
 
 ```ts
-import { resolveMeta } from 'advanced-seo-plugin'
+import { resolveMeta } from '@foundrykit/advanced-seo-plugin'
 
 const globals = await payload.findGlobal({ slug: 'global-seo' })
 const resolved = resolveMeta(doc, { globals })
@@ -161,7 +161,7 @@ const resolved = resolveMeta(doc, { globals })
 Example (app router):
 
 ```ts
-import { toNextMetadata } from 'advanced-seo-plugin/next'
+import { toNextMetadata } from '@foundrykit/advanced-seo-plugin/next'
 
 export async function generateMetadata({ params }) {
   const doc = await payload.findByID({ collection: 'posts', id: params.id })
@@ -184,7 +184,7 @@ import {
   organizationJsonLd,
   breadcrumbJsonLd,
   buildJsonLd,
-} from 'advanced-seo-plugin'
+} from '@foundrykit/advanced-seo-plugin'
 ```
 
 Examples:
@@ -221,7 +221,7 @@ import {
   AlternatesField,
   PreviewField,
   structuredDataRow,
-} from 'advanced-seo-plugin'
+} from '@foundrykit/advanced-seo-plugin'
 ```
 
 Common elements:

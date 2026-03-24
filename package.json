@@ -1,6 +1,6 @@
 {
   "name": "@foundrykit/advanced-seo-plugin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A plugin for Payload CMS that provides advanced SEO features, including automatic generation of meta tags, sitemaps, and structured data based on your content.",
   "license": "MIT",
   "type": "module",

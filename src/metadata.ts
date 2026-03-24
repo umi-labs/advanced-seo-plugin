@@ -45,7 +45,7 @@ export type ToNextMetadataOptions = {
  *
  * @example
  * // app/blog/[slug]/page.tsx
- * import { toNextMetadata } from 'advanced-seo-plugin'
+ * import { toNextMetadata } from '@foundrykit/advanced-seo-plugin/next'
  *
  * export async function generateMetadata({ params }) {
  *   const doc = await payload.findByID({ collection: 'posts', id: params.id })

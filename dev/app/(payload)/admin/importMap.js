@@ -1,8 +1,8 @@
-import { OverviewComponent as OverviewComponent_3deb3ce12129ff920a07056d656cf192 } from 'advanced-seo-plugin/client'
-import { MetaTitleComponent as MetaTitleComponent_3deb3ce12129ff920a07056d656cf192 } from 'advanced-seo-plugin/client'
-import { MetaDescriptionComponent as MetaDescriptionComponent_3deb3ce12129ff920a07056d656cf192 } from 'advanced-seo-plugin/client'
-import { JsonLdEditorComponent as JsonLdEditorComponent_3deb3ce12129ff920a07056d656cf192 } from 'advanced-seo-plugin/client'
-import { PreviewComponent as PreviewComponent_3deb3ce12129ff920a07056d656cf192 } from 'advanced-seo-plugin/client'
+import { OverviewComponent as OverviewComponent_3deb3ce12129ff920a07056d656cf192 } from '@foundrykit/advanced-seo-plugin/client'
+import { MetaTitleComponent as MetaTitleComponent_3deb3ce12129ff920a07056d656cf192 } from '@foundrykit/advanced-seo-plugin/client'
+import { MetaDescriptionComponent as MetaDescriptionComponent_3deb3ce12129ff920a07056d656cf192 } from '@foundrykit/advanced-seo-plugin/client'
+import { JsonLdEditorComponent as JsonLdEditorComponent_3deb3ce12129ff920a07056d656cf192 } from '@foundrykit/advanced-seo-plugin/client'
+import { PreviewComponent as PreviewComponent_3deb3ce12129ff920a07056d656cf192 } from '@foundrykit/advanced-seo-plugin/client'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -26,14 +26,14 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
-import { JsonLdTemplateRowLabel as JsonLdTemplateRowLabel_3deb3ce12129ff920a07056d656cf192 } from 'advanced-seo-plugin/client'
+import { JsonLdTemplateRowLabel as JsonLdTemplateRowLabel_3deb3ce12129ff920a07056d656cf192 } from '@foundrykit/advanced-seo-plugin/client'
 
 export const importMap = {
-  "advanced-seo-plugin/client#OverviewComponent": OverviewComponent_3deb3ce12129ff920a07056d656cf192,
-  "advanced-seo-plugin/client#MetaTitleComponent": MetaTitleComponent_3deb3ce12129ff920a07056d656cf192,
-  "advanced-seo-plugin/client#MetaDescriptionComponent": MetaDescriptionComponent_3deb3ce12129ff920a07056d656cf192,
-  "advanced-seo-plugin/client#JsonLdEditorComponent": JsonLdEditorComponent_3deb3ce12129ff920a07056d656cf192,
-  "advanced-seo-plugin/client#PreviewComponent": PreviewComponent_3deb3ce12129ff920a07056d656cf192,
+  "@foundrykit/advanced-seo-plugin/client#OverviewComponent": OverviewComponent_3deb3ce12129ff920a07056d656cf192,
+  "@foundrykit/advanced-seo-plugin/client#MetaTitleComponent": MetaTitleComponent_3deb3ce12129ff920a07056d656cf192,
+  "@foundrykit/advanced-seo-plugin/client#MetaDescriptionComponent": MetaDescriptionComponent_3deb3ce12129ff920a07056d656cf192,
+  "@foundrykit/advanced-seo-plugin/client#JsonLdEditorComponent": JsonLdEditorComponent_3deb3ce12129ff920a07056d656cf192,
+  "@foundrykit/advanced-seo-plugin/client#PreviewComponent": PreviewComponent_3deb3ce12129ff920a07056d656cf192,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -57,5 +57,5 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
-  "advanced-seo-plugin/client#JsonLdTemplateRowLabel": JsonLdTemplateRowLabel_3deb3ce12129ff920a07056d656cf192
+  "@foundrykit/advanced-seo-plugin/client#JsonLdTemplateRowLabel": JsonLdTemplateRowLabel_3deb3ce12129ff920a07056d656cf192
 }

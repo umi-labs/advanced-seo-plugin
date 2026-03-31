@@ -7,7 +7,7 @@ import {
   MetaJsonLdField,
   MetaPreviewField,
   MetaTitleField,
-} from 'advanced-seo-plugin'
+} from '@foundrykit/advanced-seo-plugin'
 import { MongoMemoryReplSet } from 'mongodb-memory-server'
 import path from 'path'
 import { buildConfig } from 'payload'

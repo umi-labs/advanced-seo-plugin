@@ -63,7 +63,7 @@ export const getGlobalSeoGlobal = (opts: GlobalSeoOptions = {}): GlobalConfig =>
         type: 'array',
         admin: {
           components: {
-            RowLabel: 'advanced-seo-plugin/client#JsonLdTemplateRowLabel',
+            RowLabel: '@foundrykit/advanced-seo-plugin/client#JsonLdTemplateRowLabel',
           },
           description:
             'Reusable schema markup templates. The five built-in schema types are seeded automatically — customise them or add your own. Each template can be loaded into any document from the JSON-LD field.',
@@ -83,7 +83,7 @@ export const getGlobalSeoGlobal = (opts: GlobalSeoOptions = {}): GlobalConfig =>
               components: {
                 Field: {
                   clientProps: { isTemplate: true },
-                  path: 'advanced-seo-plugin/client#JsonLdEditorComponent',
+                  path: '@foundrykit/advanced-seo-plugin/client#JsonLdEditorComponent',
                 },
               },
             },

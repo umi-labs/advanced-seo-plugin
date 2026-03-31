@@ -19,13 +19,13 @@
       "@payload-config": [
         "./payload.config.ts"
       ],
-      "advanced-seo-plugin": [
+      "@foundrykit/advanced-seo-plugin": [
         "../src/index.ts"
       ],
-      "advanced-seo-plugin/client": [
+      "@foundrykit/advanced-seo-plugin/client": [
         "../src/exports/client.ts"
       ],
-      "advanced-seo-plugin/rsc": [
+      "@foundrykit/advanced-seo-plugin/rsc": [
         "../src/exports/rsc.ts"
       ]
     },
